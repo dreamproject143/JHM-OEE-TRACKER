@@ -1,1 +1,6 @@
-
+flask
+pandas
+openpyxl
+xlsxwriter
+nump
+gunicorn
