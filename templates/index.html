@@ -1,1 +1,53 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Machine Performance Analyzer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Machine Performance Analyzer</h1>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <input type="file" name="files" id="fileInput" multiple>
+            <button type="button" onclick="uploadFile()">Upload Files</button>
+        </form>
+        <p id="message"></p>
+        <button onclick="processAndDownload()">Generate Report</button>
+    </div>
 
+    <script>
+        function uploadFile() {
+            const formData = new FormData();
+            const files = document.getElementById('fileInput').files;
+            
+            if (files.length === 0) {
+                alert('Please select files first');
+                return;
+            }
+
+            Array.from(files).forEach(file => formData.append('files', file));
+
+            fetch('/upload', { method: 'POST', body: formData })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('message').innerText = data.message;
+                });
+        }
+
+        function processAndDownload() {
+            fetch('/process', { method: 'POST' })
+                .then(response => response.blob())
+                .then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'Machine_Performance_Summary.xlsx';
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                });
+        }
+    </script>
+</body>
+</html>
