@@ -1,1 +1,33 @@
+/* static/style.css */
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background: #f0f2f5;
+}
 
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+button {
+    background: #1F497D;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 10px 0;
+}
+
+button:hover {
+    background: #15345e;
+}
+
+input[type="file"] {
+    margin: 10px 0;
+}
