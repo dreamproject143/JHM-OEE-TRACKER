@@ -1,22 +1,39 @@
-<!-- templates/index.html -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Machine Performance Analyzer</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OEE Calculator | Made by Ram</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.ico') }}">
 </head>
 <body>
     <div class="container">
-        <h1>Machine Performance Analyzer</h1>
+        <h1>OEE Calculator <span class="author">(Made by Ram)</span></h1>
+        <p class="subtitle">Optimize Your Machine Performance</p>
+        
         <form id="uploadForm" enctype="multipart/form-data">
-            <input type="file" name="files" id="fileInput" multiple>
-            <button type="button" onclick="uploadFile()">Upload Files</button>
+            <label for="fileInput" class="custom-file-upload">
+                📂 Choose Files
+                <input type="file" name="files" id="fileInput" multiple hidden>
+            </label>
+            <span id="fileLabel">No files chosen</span>
+            <button type="button" onclick="uploadFile()">📤 Upload Files</button>
         </form>
+        
         <p id="message"></p>
-        <button onclick="processAndDownload()">Generate Report</button>
+        <button onclick="processAndDownload()">📊 Generate OEE Report</button>
     </div>
 
+    <!-- Small Thank You Message -->
+    <p class="thank-you">Thank you for giving chance, Mr. Bryan</p>
+
     <script>
+        document.getElementById('fileInput').addEventListener('change', function() {
+            let fileLabel = document.getElementById('fileLabel');
+            fileLabel.innerText = this.files.length > 0 ? `${this.files.length} files selected` : "No files chosen";
+        });
+
         function uploadFile() {
             const formData = new FormData();
             const files = document.getElementById('fileInput').files;
@@ -42,7 +59,7 @@
                     const url = window.URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = 'Machine_Performance_Summary.xlsx';
+                    a.download = 'OEE_Summary.xlsx';
                     document.body.appendChild(a);
                     a.click();
                     window.URL.revokeObjectURL(url);
