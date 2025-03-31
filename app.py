@@ -1,8 +1,7 @@
-# app.py
 import os
 import pandas as pd
 import numpy as np
-from flask import Flask, render_template, request, send_file, jsonify, send_from_directory
+from flask import Flask, render_template, request, send_file, jsonify
 from openpyxl import load_workbook
 from io import BytesIO
 
@@ -44,12 +43,10 @@ def process_files():
     
     for file_name in files:
         file_path = os.path.join(UPLOAD_FOLDER, file_name)
-        print(f"📂 Processing file: {file_name}")
-
+        
         try:
             wb = load_workbook(filename=file_path, data_only=True)
             if "MANUAL LINE" not in wb.sheetnames:
-                print(f"⚠️ Skipping {file_name}: No 'MANUAL LINE' sheet found.")
                 continue
 
             sheet = wb['MANUAL LINE']
@@ -67,7 +64,6 @@ def process_files():
                     break
 
             if header_row is None or gross_col is None:
-                print(f"⚠️ Skipping {file_name}: Header or Gross column not found.")
                 continue
 
             date_row = header_row - 1
@@ -105,7 +101,7 @@ def process_files():
                 if schedule_date not in machine_data[machine]:
                     machine_data[machine][schedule_date] = []
                 machine_data[machine][schedule_date].append(percentage)
-
+        
         except Exception as e:
             print(f"❌ Error reading {file_name}: {str(e)}")
 
@@ -118,7 +114,14 @@ def process_files():
         all_values = [v for date_values in dates.values() for v in date_values]
         if all_values: machine_performance[machine]['Average'] = sum(all_values) / len(all_values)
 
-    summary_df = pd.DataFrame(machine_performance).T.sort_index(ascending=True)
+    summary_df = pd.DataFrame(machine_performance).T
+    
+    # Sort dates correctly, keeping 'Average' at the end
+    sorted_columns = sorted([col for col in summary_df.columns if col != 'Average'], key=lambda x: pd.to_datetime(x, format='%d-%b', errors='coerce'))
+    if 'Average' in summary_df.columns:
+        sorted_columns.append('Average')
+    summary_df = summary_df[sorted_columns]
+    
     summary_df.index.name = "Work Center"
     return summary_df
 
@@ -133,7 +136,7 @@ def process_and_download():
             workbook = writer.book
             worksheet = writer.sheets['Summary']
 
-            # Add formatting (same as original)
+            # Add formatting
             header_format = workbook.add_format({
                 'bold': True, 'font_size': 12, 'bg_color': '#1F497D',
                 'font_color': 'white', 'border': 1, 'align': 'center'
@@ -149,8 +152,6 @@ def process_and_download():
                 worksheet.write(row_idx, 0, index, cell_format)
                 for col_idx, value in enumerate(row, start=1):
                     if pd.notna(value): worksheet.write(row_idx, col_idx, value, cell_format)
-
-            # Add other formatting as needed
 
         output.seek(0)
         return send_file(output, download_name='Machine_Performance_Summary.xlsx', as_attachment=True)
