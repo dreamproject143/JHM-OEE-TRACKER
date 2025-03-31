@@ -1,57 +1,33 @@
+/* static/style.css */
 body {
     font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
-                url("https://images.unsplash.com/photo-1581092335264-4b8b5d4f7a19") fixed center/cover;
-    color: white;
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
+    margin: 20px;
+    background: #f0f2f5;
 }
 
 .container {
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-radius: 12px;
-    padding: 25px;
-    width: 90%;
     max-width: 800px;
-    margin: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    margin: 0 auto;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-button, .custom-file-upload {
-    background: linear-gradient(135deg, #007BFF, #0056b3);
+button {
+    background: #1F497D;
     color: white;
-    padding: 14px 22px;
+    padding: 10px 20px;
     border: none;
-    border-radius: 6px;
+    border-radius: 4px;
     cursor: pointer;
-    margin: 10px auto;
-    display: block;
-    width: 100%;
-    max-width: 300px;
-    transition: 0.3s;
+    margin: 10px 0;
 }
 
-#message {
-    padding: 10px;
-    border-radius: 5px;
-    margin: 15px 0;
-    text-align: center;
+button:hover {
+    background: #15345e;
 }
 
-@media (max-width: 480px) {
-    .container {
-        padding: 15px;
-    }
-    button {
-        padding: 12px 18px;
-        font-size: 14px;
-    }
+input[type="file"] {
+    margin: 10px 0;
 }
