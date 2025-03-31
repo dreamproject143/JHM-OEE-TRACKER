@@ -1,6 +1,6 @@
-flask==3.0.3
-pandas==2.2.1
-openpyxl==3.1.2
-xlsxwriter==3.2.0
-numpy==1.26.4
-gunicorn==21.2.0
+flask
+pandas
+openpyxl
+xlsxwriter
+numpy
+gunicorn
