@@ -5,14 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OEE Calculator | Made by Ram</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.ico') }}">
 </head>
 <body>
     <div class="container">
         <h1>OEE Calculator <span class="author">(Made by Ram)</span></h1>
         <p class="subtitle">Optimize Your Machine Performance</p>
         
-        <form id="uploadForm" enctype="multipart/form-data">
+        <form id="uploadForm">
             <label for="fileInput" class="custom-file-upload">
                 📂 Choose Files
                 <input type="file" name="files" id="fileInput" multiple hidden>
@@ -25,93 +24,82 @@
         <button onclick="processAndDownload()">📊 Generate OEE Report</button>
     </div>
 
-    <!-- Small Thank You Message -->
     <p class="thank-you">Thank you for giving chance, Mr. Bryan</p>
 
     <script>
-        // File selection display
+        // File selection handler
         document.getElementById('fileInput').addEventListener('change', function() {
-            const fileLabel = document.getElementById('fileLabel');
-            fileLabel.innerText = this.files.length > 0 
+            document.getElementById('fileLabel').textContent = this.files.length 
                 ? `${this.files.length} files selected` 
                 : "No files chosen";
         });
 
-        // File upload function
-        async function uploadFile() {
-            const files = document.getElementById('fileInput').files;
-            const messageElement = document.getElementById('message');
+        // Universal error handler
+        async function handleResponse(response) {
+            const contentType = response.headers.get('content-type');
             
-            if (files.length === 0) {
-                messageElement.innerText = "⚠️ Please select files first!";
-                messageElement.style.color = "#ffeb3b";
-                return;
+            if (response.status === 204) return null;
+            if (contentType?.includes('application/json')) {
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.message || 'Request failed');
+                return data;
             }
+            if (contentType?.includes('application/vnd.openxmlformats')) {
+                return await response.blob();
+            }
+            throw new Error(await response.text());
+        }
 
+        // Upload files
+        async function uploadFile() {
+            const message = document.getElementById('message');
             try {
-                messageElement.innerText = "⏳ Uploading files...";
-                messageElement.style.color = "#ffeb3b";
+                const files = document.getElementById('fileInput').files;
+                if (!files.length) throw new Error('Please select files first');
                 
+                message.textContent = 'Uploading files...';
+                message.style.color = '#ffeb3b';
+
                 const formData = new FormData();
                 Array.from(files).forEach(file => formData.append('files', file));
 
-                const response = await fetch('/upload', {
-                    method: 'POST',
-                    body: formData
-                });
+                const response = await fetch('/upload', { method: 'POST', body: formData });
+                const data = await handleResponse(response);
 
-                const data = await response.json();
-                
-                if (!response.ok) {
-                    throw new Error(data.message || 'Upload failed');
-                }
+                message.textContent = `✅ ${data.message}`;
+                message.style.color = '#4CAF50';
 
-                messageElement.innerText = `✅ ${data.message}`;
-                messageElement.style.color = "#4CAF50";
-                
             } catch (error) {
-                messageElement.innerText = `❌ Error: ${error.message}`;
-                messageElement.style.color = "#ff5722";
-                console.error('Upload error:', error);
+                message.textContent = `❌ Error: ${error.message}`;
+                message.style.color = '#ff5722';
+                console.error(error);
             }
         }
 
-        // Process and download function
+        // Process and download
         async function processAndDownload() {
-            const messageElement = document.getElementById('message');
-            
+            const message = document.getElementById('message');
             try {
-                messageElement.innerText = "⏳ Generating report...";
-                messageElement.style.color = "#ffeb3b";
-                
-                const response = await fetch('/process', { method: 'POST' });
-                
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Processing failed');
-                }
+                message.textContent = 'Generating report...';
+                message.style.color = '#ffeb3b';
 
-                const blob = await response.blob();
-                
-                // Create download link
-                const url = window.URL.createObjectURL(blob);
+                const response = await fetch('/process', { method: 'POST' });
+                const blob = await handleResponse(response);
+
+                const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = 'OEE_Summary.xlsx';
-                document.body.appendChild(a);
+                a.download = 'OEE_Report.xlsx';
                 a.click();
-                
-                // Cleanup
-                window.URL.revokeObjectURL(url);
-                document.body.removeChild(a);
-                
-                messageElement.innerText = "✅ Report downloaded successfully!";
-                messageElement.style.color = "#4CAF50";
-                
+                URL.revokeObjectURL(url);
+
+                message.textContent = '✅ Report downloaded!';
+                message.style.color = '#4CAF50';
+
             } catch (error) {
-                messageElement.innerText = `❌ Error: ${error.message}`;
-                messageElement.style.color = "#ff5722";
-                console.error('Processing error:', error);
+                message.textContent = `❌ Error: ${error.message}`;
+                message.style.color = '#ff5722';
+                console.error(error);
             }
         }
     </script>
