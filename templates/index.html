@@ -29,41 +29,90 @@
     <p class="thank-you">Thank you for giving chance, Mr. Bryan</p>
 
     <script>
+        // File selection display
         document.getElementById('fileInput').addEventListener('change', function() {
-            let fileLabel = document.getElementById('fileLabel');
-            fileLabel.innerText = this.files.length > 0 ? `${this.files.length} files selected` : "No files chosen";
+            const fileLabel = document.getElementById('fileLabel');
+            fileLabel.innerText = this.files.length > 0 
+                ? `${this.files.length} files selected` 
+                : "No files chosen";
         });
 
-        function uploadFile() {
-            const formData = new FormData();
+        // File upload function
+        async function uploadFile() {
             const files = document.getElementById('fileInput').files;
+            const messageElement = document.getElementById('message');
             
             if (files.length === 0) {
-                alert('Please select files first');
+                messageElement.innerText = "⚠️ Please select files first!";
+                messageElement.style.color = "#ffeb3b";
                 return;
             }
 
-            Array.from(files).forEach(file => formData.append('files', file));
+            try {
+                messageElement.innerText = "⏳ Uploading files...";
+                messageElement.style.color = "#ffeb3b";
+                
+                const formData = new FormData();
+                Array.from(files).forEach(file => formData.append('files', file));
 
-            fetch('/upload', { method: 'POST', body: formData })
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('message').innerText = data.message;
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
                 });
+
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.message || 'Upload failed');
+                }
+
+                messageElement.innerText = `✅ ${data.message}`;
+                messageElement.style.color = "#4CAF50";
+                
+            } catch (error) {
+                messageElement.innerText = `❌ Error: ${error.message}`;
+                messageElement.style.color = "#ff5722";
+                console.error('Upload error:', error);
+            }
         }
 
-        function processAndDownload() {
-            fetch('/process', { method: 'POST' })
-                .then(response => response.blob())
-                .then(blob => {
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'OEE_Summary.xlsx';
-                    document.body.appendChild(a);
-                    a.click();
-                    window.URL.revokeObjectURL(url);
-                });
+        // Process and download function
+        async function processAndDownload() {
+            const messageElement = document.getElementById('message');
+            
+            try {
+                messageElement.innerText = "⏳ Generating report...";
+                messageElement.style.color = "#ffeb3b";
+                
+                const response = await fetch('/process', { method: 'POST' });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Processing failed');
+                }
+
+                const blob = await response.blob();
+                
+                // Create download link
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'OEE_Summary.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                
+                // Cleanup
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+                messageElement.innerText = "✅ Report downloaded successfully!";
+                messageElement.style.color = "#4CAF50";
+                
+            } catch (error) {
+                messageElement.innerText = `❌ Error: ${error.message}`;
+                messageElement.style.color = "#ff5722";
+                console.error('Processing error:', error);
+            }
         }
     </script>
 </body>
