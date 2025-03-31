@@ -1,19 +1,22 @@
+/* style.css */
 /* Realistic Industrial Background */
 body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background: url("https://images.unsplash.com/photo-1581092335264-4b8b5d4f7a19") no-repeat center center fixed;
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+                url("https://images.unsplash.com/photo-1581092335264-4b8b5d4f7a19") no-repeat center center fixed;
     background-size: cover;
     color: white;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh; /* Changed to min-height for better mobile support */
     position: relative;
+    -webkit-tap-highlight-color: transparent; /* Disable mobile tap highlight */
 }
 
-/* Dark Overlay for Readability */
+/* Dark Overlay for Readability (now combined with background property) */
 body::before {
     content: "";
     position: absolute;
@@ -21,7 +24,7 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5); /* Dark overlay */
+    background: rgba(0, 0, 0, 0.5);
     z-index: 0;
 }
 
@@ -32,18 +35,20 @@ body::before {
     width: 90%;
     max-width: 800px;
     padding: 25px;
-    background: rgba(255, 255, 255, 0.15); /* Transparent White */
+    background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px); /* Safari support */
     border-radius: 12px;
-    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
     text-align: center;
     color: white;
     border: 1px solid rgba(255, 255, 255, 0.3);
+    margin: 20px 0; /* Added margin for mobile safety */
 }
 
 /* Title Styling */
 h1 {
-    font-size: 28px;
+    font-size: clamp(24px, 3vw, 32px); /* Responsive font size */
     margin-bottom: 5px;
     text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.8);
 }
@@ -52,10 +57,11 @@ h1 {
     font-size: 14px;
     font-weight: normal;
     color: rgba(255, 255, 255, 0.7);
+    display: block; /* Ensure proper spacing */
 }
 
 .subtitle {
-    font-size: 16px;
+    font-size: clamp(14px, 1.8vw, 18px); /* Responsive font size */
     margin-bottom: 20px;
     color: rgba(255, 255, 255, 0.9);
 }
@@ -72,11 +78,13 @@ h1 {
     font-weight: bold;
     margin: 10px auto;
     transition: 0.3s;
-    box-shadow: 0px 3px 8px rgba(255, 87, 34, 0.6);
+    box-shadow: 0 3px 8px rgba(255, 87, 34, 0.6);
+    border: none; /* Added for consistency */
 }
 
 .custom-file-upload:hover {
     background: linear-gradient(135deg, #e65100, #bf360c);
+    transform: translateY(-1px); /* Added subtle hover effect */
 }
 
 /* File Selection Label */
@@ -86,6 +94,7 @@ h1 {
     font-size: 15px;
     color: rgba(255, 255, 255, 0.8);
     font-style: italic;
+    min-height: 18px; /* Prevent layout shift */
 }
 
 /* Buttons */
@@ -100,11 +109,14 @@ button {
     font-size: 17px;
     font-weight: bold;
     transition: 0.3s;
-    box-shadow: 0px 3px 8px rgba(0, 123, 255, 0.5);
+    box-shadow: 0 3px 8px rgba(0, 123, 255, 0.5);
+    width: 100%; /* Better mobile handling */
+    max-width: 300px; /* Prevent over-stretching */
 }
 
 button:hover {
     background: linear-gradient(135deg, #0056b3, #003f8a);
+    transform: translateY(-1px);
 }
 
 /* Message Display */
@@ -112,10 +124,11 @@ button:hover {
     margin-top: 15px;
     font-size: 16px;
     font-weight: bold;
-    color: #ffeb3b;
     padding: 8px;
     border-radius: 5px;
     background: rgba(255, 235, 59, 0.15);
+    min-height: 20px; /* Prevent layout shift */
+    transition: color 0.3s ease; /* Smooth color transitions */
 }
 
 /* Thank You Message */
@@ -127,4 +140,22 @@ button:hover {
     color: rgba(255, 255, 255, 0.85);
     text-align: right;
     font-style: italic;
+    padding: 5px; /* Added padding for touch targets */
+}
+
+/* Mobile Optimization */
+@media (max-width: 480px) {
+    .container {
+        padding: 15px;
+        margin: 10px;
+    }
+    
+    button {
+        font-size: 15px;
+        padding: 12px 18px;
+    }
+    
+    .custom-file-upload {
+        font-size: 14px;
+    }
 }
