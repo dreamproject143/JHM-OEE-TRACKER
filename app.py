@@ -26,6 +26,16 @@ def upload_file():
     if len(files) == 0:
         return jsonify({'message': 'No selected files', 'status': 'error'})
 
+    # Clear existing files in upload folder
+    for existing_file in os.listdir(UPLOAD_FOLDER):
+        file_path = os.path.join(UPLOAD_FOLDER, existing_file)
+        try:
+            if os.path.isfile(file_path):
+                os.unlink(file_path)
+        except Exception as e:
+            print(f"Error deleting {file_path}: {e}")
+
+    # Save new files
     for file in files:
         if file.filename == '':
             continue
